@@ -77,7 +77,8 @@ export(df_varpercent, "edd.xlsx")
 p_load(stargazer, dplyr)
 base1df <- as.data.frame(base1)
 
-modelo1 <- lm(lwage ~ educ + exper + black + married + fatheduc + motheduc, data = base1df) %>% stargazer(... = modelo1, type="text")
+modelo1 <- lm(lwage ~ educ + exper + black + married + fatheduc + motheduc, data = base1df) 
+resultadosm1 <- stargazer(... = modelo1, type="text")
 
 #interpretacion#
 
@@ -125,11 +126,22 @@ modelo1 <- lm(lwage ~ educ + exper + black + married + fatheduc + motheduc, data
 #
 
 # forma empirica
-#               1) sabemos que al existir endogeneidad sucede que E[u*|x]!=0, donde u*=u+b2Habilidadinnata 
+#               1) sabemos que al existir endogeneidad sucede que E[u*|s]!=0, donde u*=u+b2Habilidadinnata 
 
 
 #               2) obtenemos los errores del modelo
 
 
-residuales <- modelo1$
+residuales <- modelo1$residuals
 
+
+
+#               3) obtenemos si existe una relacion entre Si y el error.
+
+                cor.test(base1df$educ, residuales)
+
+#               4) si la correlacion es positiva o negativa(distinta de cero) entonces probablemente hay un problema de endogeneidad
+                cor.test(base1df$educ, residuales) >0 ====> entonces hay endongeeidad
+                
+###### C)##########             
+              
