@@ -143,5 +143,5 @@ residuales <- modelo1$residuals
 #               4) si la correlacion es positiva o negativa(distinta de cero) entonces probablemente hay un problema de endogeneidad
                 cor.test(base1df$educ, residuales) >0 ====> entonces hay endongeeidad
                 
-###### C)##########             
+###### C)##########            
               
