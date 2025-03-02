@@ -1,0 +1,29 @@
+---
+title: "edc1"
+output:
+  html_document:
+    df_print: paged
+date: "2025-03-02"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(pacman)
+p_load(rio, gridExtra, rmarkdown, knitr, tinytex, xtable)
+
+base1 <- import("C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/taller 2/taller2 practico/New folder/talleres-econometria-2-en-r/bases/BaseP1.dta")
+
+#a) estadisticas descriptivas para variables continuas
+
+varcont <- subset(base1, select = c(lwage, exper, motheduc, fatheduc, educ))
+edc<-list(summary(varcont))
+#creamos una base de datos de variables deseadas, guardamos en una tabla y exportamos en rmarkdown
+edc<- as.data.frame(t(sapply(varcont, summary)))
+
+
+print(knitr::kable(edc, caption = "Estadísticas Descriptivas para Variables Continuas"))
+
+export(edc, "resultados/estadisticas_descriptivas.xlsx")
+
+```
+
