@@ -288,7 +288,25 @@ render("regresionFR.Rmd", output_format="pdf_document")
 0.104/0.316 == 0.3291139
 
 
-#explicacion
+#explicacion: tal relacion se da debido a que el instrumento IV estudia el efecto entre la forma reducida y la primera etapa
 
+
+##########h)##########
+#primera etapa 
+modelo1eraetapa <- lm(educ ~ nearc4 +  exper + black + married + fatheduc + motheduc, data= base1df)
+#obtenemos la recta que mejor se ajusta a los puntos
+sihat <- modelo1eraetapa$fitted.values
+
+
+#segunda etapa
+modelo2etapa <- lm(lwage ~ sihat + exper + black + married + fatheduc + motheduc, data= base1df)
+resultados2etapa <- stargazer(modelo2etapa, type = "latex", escape= FALSE, header=FALSE)
+
+#unimos la regresion de 1era etapa con la de 2nda etapa y con ivreg
+p_load(rio, AER, dplyr, rmarkdown)
+modeloiv <-modelo2
+uniondereg <- stargazer(modelo1eraetapa,modelo2etapa, modeloiv, type="latex", header = FALSE, escape = FALSE)
+#exportamos regresion
+render("regresionUnion.Rmd", output_format = "pdf_document")
 
 
