@@ -143,5 +143,152 @@ residuales <- modelo1$residuals
 #               4) si la correlacion es positiva o negativa(distinta de cero) entonces probablemente hay un problema de endogeneidad
                 cor.test(base1df$educ, residuales) >0 ====> entonces hay endongeeidad
                 
-###### C)##########            
+###### C)##########       
+# el metodo de variables instrumentales nos permite eliminar el sesgo generado por una variable endogena.
+#cuando utilizamos una variable instrumental queremos eliminar la endogeneidad por medio de una variable instrumental Zi.
+#esta variable debe cumplir 2 caractaristicas fundamentales al mismo tiempo, relevancia y exogeneidad. 
+# Cuando un instrumento es relevante, decimos que existe una relacion entre la variable endogena y el instrumento.
+#igualmente, cuando el instrumento zi no tiene relacion con el error, entonces decimos que es exogeno. Por lo tanto,
+# la interacion entre Zi solo afecta a Yi por medio de la variable endogena y garantizando exogeneidad.
+                
+                
+#########d)############
+#cuando utilizamos la variable dicotoma nearc4 podemos concluir que el instrumento cumple las 2 propiedades fundamentales.
+# relevancia: Existe una relacion entre los años de educacion y si existe una universidad cerca al condado.
+                cov(base1df$nearc4, base1df$educ) = 0.1507828 >0
+                
+#exogeneidad: En el anterior caso, concluimos que hay un endogeneidad cuando E[u*|s]!= 0, donde u*=u+b2Habilidadinnata
+#             Por lo cual, se puede argumentar que si un condado cuenta con una universidad no necesariamente esto afecta la habilidad innata.
+                
+                
+                
+######## e) ###########
+modelo1 <- lm(lwage ~ educ + exper + black + married + fatheduc + motheduc, data = base1df) 
+resultadosm1 <- stargazer(... = modelo1, type="text")
+
+#modelo con variable instrumental
+# paquetes necesarios
+require(pacman)
+p_load(stargazer, AER)
+modelo2 <- ivreg(lwage ~ educ  + exper + black + married + fatheduc + motheduc| nearc4 + exper + black + married + fatheduc + motheduc, data = base1df)         
+                
+#comparamos modelos
+resultadosIv <- stargazer(modelo1, modelo2, type="text")
+#exportamos con rmarkdown
+setwd("C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/taller 2/taller2 practico/New folder/talleres-econometria-2-en-r/resultados")
+rmarkdown::render("resultadosIv.Rmd",output_format = "pdf_document")
+
+#interpretacion
+#======================================================================
+  #Dependent variable:    lwage        
+  --------------------------------------
+#                           
+#                  OLS                     instrumental
+#                  variable  
+#                          (1)                (2)     
+----------------------------------------------------------------------
+# educ                 0.075***            0.330***  
+#                       (0.004)            (0.090)   
+
+#exper                 0.040***            0.128***  
+#                       (0.003)            (0.031)   
+
+#black                 -0.172***           -0.084*   
+#                      (0.024)            (0.049)   
+
+#married               0.143***             0.070*   
+#                       (0.019)            (0.039)   
+
+#fatheduc              0.004             -0.027**  
+#                     (0.003)            (0.012)   
+
+#motheduc             0.010***            -0.024*   
+#                      (0.004)            (0.013)   
+
+#Constant            4.712***             1.215    
+#                     (0.076)            (1.236)   
+
+----------------------------------------------------------------------
+#  Observations                              2,220              2,220    
+#R2                                        0.229              -0.948   
+#Adjusted R2                               0.227              -0.953   
+#Residual Std. Error (df = 2213)           0.387              0.615    
+#F Statistic                     109.724*** (df = 6; 2213)             
+#======================================================================
+#  Note:                                      *p<0.1; **p<0.05; ***p<0.01
+
+#  ¿Es coherente el resultado con el sentido del sesgo por variable omitida?
+#es decir ¿creer que la omisi´ on de la habilidad innata sobre-estimar´ ıa o sub
+#estimar´ ıa el rendimiento de la educaci´on sobre los ingresos?
+
+#respuesta: 
+#  BONO:¿Por qu´e cree entonces que los retornos a la educaci´on sean mayores
+#para los compliers que para la poblaci´on en general? Relacione la respuesta
+#a este punto con el estimador IV LATE.
+
+#respuesta 
+
+
+###f)### primera etapa
+
+modelo1eraetapa <- lm(educ ~ nearc4 +  exper + black + married + fatheduc + motheduc, data= base1df)
+resultados1eraetapa <- stargazer(modelo1eraetapa, type="latex", escape= FALSE, header= FALSE)
+#exportamos
+render("resultados1eraetapa.Rmd", output_format="pdf_document")
+#interpretacion
+# ===============================================
+#Dependent variable:    
+  ---------------------------
+#                              educ            
+-----------------------------------------------
+#  nearc4                       0.316***          
+#                             (0.086)          
+
+#exper                        -0.341***         
+#                             (0.011)          
+
+#black                        -0.332***         
+#                              (0.116)          
+
+#married                      0.286***          
+#                             (0.091)          
+
+#fatheduc                     0.116***          
+#                             (0.014)          
+
+#motheduc                     0.133***          
+#                             (0.017)          
+
+#Constant                     13.506***         
+#                             (0.228)          
+
+-----------------------------------------------
+#  Observations                   2,220           
+#R2                             0.482           
+#Adjusted R2                    0.481           
+#Residual Std. Error      1.864 (df = 2213)     
+#F Statistic          343.619*** (df = 6; 2213) 
+#===============================================
+#  Note:               *p<0.1; **p<0.05; ***p<0.01
+
+#### g)##### 
+#modelo en forma reducida: Yi = alpha + b1Zi+gammaXi+ei, donde Zi es el instrumento nearc4
+
+formareducida <- lm(lwage ~ nearc4 + exper + black + married + fatheduc + motheduc, data= base1df)
+resultadosfr <- stargazer(formareducida, data= base1df, header=FALSE, escape=FALSE, type="latex")
+render("regresionFR.Rmd", output_format="pdf_document")                
               
+
+#####
+#estimador por medio de ivreg = 0.330 
+# estimador por medio de la primera etapa = 0.316
+#estimador de la forma reducida = 0.104
+#de acuerdo con el enunciado; estimador de iv= estimador de forma reducida/ estimador de primera etapa
+
+0.104/0.316 == 0.3291139
+
+
+#explicacion
+
+
+

@@ -1,0 +1,18 @@
+---
+title: "Regresion1etapa"
+output: pdf_document
+date: "2025-03-03"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE)
+require(pacman)
+p_load(stargazer, dplyr, knitr, rio, AER, tinytex)
+base1 <- import("C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/taller 2/taller2 practico/New folder/talleres-econometria-2-en-r/bases/BaseP1.dta")
+base1df <- as.data.frame(base1)
+modelo1eraetapa <- lm(educ ~ nearc4 +  exper + black + married + fatheduc + motheduc, data= base1df)
+```
+```{r results="asis", echo=FALSE}
+resultados1eraetapa<-stargazer(modelo1eraetapa, type="latex", escape= FALSE, header= FALSE)
+```

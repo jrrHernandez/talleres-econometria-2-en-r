@@ -1,0 +1,26 @@
+---
+title: "regresionUnion"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(pacman)
+p_load(rio, AER, dplyr, stargazer)
+base1 <- import("C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/taller 2/taller2 practico/New folder/talleres-econometria-2-en-r/bases/BaseP1.dta")
+base1df <- as.data.frame(base1)
+modeloiv <-modelo2 <- ivreg(lwage ~ educ  + exper + black + married + fatheduc + motheduc| nearc4 + exper + black + married + fatheduc + motheduc, data = base1df)
+```
+
+
+```{r results="asis", echo=FALSE}
+modelo1eraetapa <- lm(educ ~ nearc4 +  exper + black + married + fatheduc + motheduc, data= base1df)
+sihat <- modelo1eraetapa$fitted.values
+
+
+modelo2etapa <- lm(lwage ~ sihat + exper + black + married + fatheduc + motheduc, data= base1df)
+resultados2etapa <- stargazer(modelo2etapa, type = "latex", escape= FALSE, header=FALSE)
+
+uniondereg <- stargazer(modelo1eraetapa,modelo2etapa, modeloiv, type="latex", header = FALSE, escape = FALSE)
+
+```

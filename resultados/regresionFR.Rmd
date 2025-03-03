@@ -1,0 +1,17 @@
+---
+title: "regresion Forma Reducida"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+require(pacman)
+p_load(stargazer, rio)
+base1 <- import("C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/taller 2/taller2 practico/New folder/talleres-econometria-2-en-r/bases/BaseP1.dta")
+base1df <- as.data.frame(base1)
+```
+```{r results="asis",echo=FALSE}
+formareducida <- lm(lwage ~ nearc4 + exper + black + married + fatheduc + motheduc, data= base1df)
+resultadosfr <- stargazer(formareducida, data= base1df, header=FALSE, escape=FALSE, type="latex")
+```
