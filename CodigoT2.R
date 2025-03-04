@@ -7,9 +7,9 @@
 #
 #
 ###############################################################################
-                              
+###############################################################################                              
                               #PUNTO 1#
-
+###############################################################################
 #cargamos la base de de datos "BaseP1.dta"
 require(pacman)
 p_load(rio, gridExtra, rmarkdown, knitr)
@@ -308,5 +308,101 @@ modeloiv <-modelo2
 uniondereg <- stargazer(modelo1eraetapa,modelo2etapa, modeloiv, type="latex", header = FALSE, escape = FALSE)
 #exportamos regresion
 render("regresionUnion.Rmd", output_format = "pdf_document")
+
+###############################################################################
+#########################SEGUNDO PUNTO########################################
+###############################################################################
+###############################################################################
+
+
+#Limpiamos el inventario
+rm(list=ls())
+require(pacman)
+p_load(stargazer, rio, ggplot2)
+
+####### a)############
+base2 <- import("C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/taller 2/taller2 practico/New folder/talleres-econometria-2-en-r/bases/BaseP2.dta")
+
+modelo1 <- lm(parvio_ip4_pc~left_winner, data = base2)
+resultados <- stargazer(modelo1, type = "text", header = FALSE, escape = FALSE)
+#===============================================
+#  Dependent variable:    
+#  ---------------------------
+#  parvio_ip4_pc       
+#-----------------------------------------------
+#  left_winner                   -0.761           
+#                                (0.979)          
+
+#Constant                     2.610***          
+#                               (0.692)          
+
+-----------------------------------------------
+#Observations                    254            
+#R2                             0.002           
+#Adjusted R2                   -0.002           
+#Residual Std. Error      7.799 (df = 252)      
+#F Statistic             0.605 (df = 1; 252)    
+#===============================================
+#  Note:               *p<0.1; **p<0.05; ***p<0.01
+
+
+#de acuerdo con nuestra pregunta clave, la cual consiste en saber si la eleccion de un presidente de izquierda
+# aumentaba los ataques violentos de grupos paramilitares 4 años despues de la eleccion de dicho alcalde, podemos
+# ver que hay una relacion negativa entre la eleccion de un alcalde de izquierda y ataques paramilitares.
+# Es decir, un municipio que cuente con un alcalde de izquierda dismunuye el indice de violencia generado por los paramilitares
+
+########### b)#########
+
+ggplot(data = base2, mapping = aes(x=base2$vote_share, y = base2$left_winner)) +
+  geom_line() + geom_vline(xintercept = 0, linetype = "dashed", color = "red", size = 1) +
+  labs(title = "Probabilidad de recibir tratamiento dado que D=1",
+       x = "proporción de votos",
+       y = "Probabilidad de ser alcalde de izquierda") 
+
+
+#podemos utilizar una regresion discontinua aguda dado que hay perfect compliance en el tratamiento
+
+##########c)##########
+## 1) graficar relacion existente entre vote_share y parvio_ip4_pc
+ggplot(data = base2, mapping = aes(x=base2$vote_share, y=base2$parvio_ip4_pc))+
+  geom_point() + labs(x="proporcion de votos", y= "indice de violencia por paramilitares")
+#2) correr regresionRDD y=b0 + b1voteshare+e (sin no linealidad)
+p_load(rdd, AER, rddtools) ## paquetes rdd y rddtools nos permite hacer un rd y es compatible con stargazer
+datosRDD<-rdd_data(y= parvio_ip4_pc, x= vote_share, data=base2, cutpoint = 0)
+
+      #estimamos la regresion y graficamos
+modeloRDD <- rdd_reg_lm(datosRDD)
+ggplot(mapping = aes(x=vote_share, y=parvio_ip4_pc), data=base2)+ 
+
+  geom_smooth(data = subset(base2, vote_share < 0), aes(vote_share, parvio_ip4_pc), method = "lm", color = "blue", se = FALSE) +
+  geom_smooth(data= subset(base2, vote_share>0), mapping = aes(x=vote_share, y=parvio_ip4_pc), method = "lm", color="red", se= FALSE) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "green", size = 1)+
+  labs(title= "Regresion Discontinua Aguda sin no linealidad",
+       x="proporcion de votos de la izquiera",
+       y= "indice de violencia por paramilitares")
+
+
+# regresion RDD con no linealidad
+modeloRDDnl <- rdd_reg_lm(datosRDD, order=2) 
+  
+  
+##grafico de dispersion con puntos y RDD
+ggplot(mapping= aes(x= vote_share,y=parvio_ip4_pc), data= base2)+ geom_point(alpha=0.5)+
+  geom_smooth(method="loess", data = subset(base2, vote_share<0), se=FALSE)+
+  geom_smooth(method="loess", data=subset(base2, vote_share >0), se= FALSE)+
+  labs(title= "regresion discontinua con no linealidad y con puntos",
+       x="proporcion de votos de la izquiera",
+       y= "indice de violencia por paramilitares")
+
+#graficp de dispercion sin puntos
+ggplot(mapping= aes(x= vote_share,y=parvio_ip4_pc), data= base2)+
+  geom_smooth(method="loess", data = subset(base2, vote_share<0), se=FALSE)+
+  geom_smooth(method="loess", data=subset(base2, vote_share >0), se= FALSE)+
+  labs(title= "regresion discontinua con no linealidad",
+       x="proporcion de votos de la izquiera",
+       y= "indice de violencia por paramilitares")
+
+
+
 
 

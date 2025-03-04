@@ -1,0 +1,20 @@
+---
+title: "RegresionA"
+output: pdf_document
+date: "2025-03-03"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(pacman)
+p_load(stargazer, rio)
+base2 <- import("C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/taller 2/taller2 practico/New folder/talleres-econometria-2-en-r/bases/BaseP2.dta")
+
+modelo1 <- lm(parvio_ip4_pc~left_winner, data = base2)
+```
+```{r results="asis", echo=FALSE}
+resultados <- stargazer(modelo1, type = "latex", header = FALSE, escape = FALSE)
+
+
+```
+
