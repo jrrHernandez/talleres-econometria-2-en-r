@@ -367,11 +367,22 @@ ggplot(data = base2, mapping = aes(x=base2$vote_share, y = base2$left_winner)) +
 ggplot(data = base2, mapping = aes(x=base2$vote_share, y=base2$parvio_ip4_pc))+
   geom_point() + labs(x="proporcion de votos", y= "indice de violencia por paramilitares")
 #2) correr regresionRDD y=b0 + b1voteshare+e (sin no linealidad)
-p_load(rdd, AER, rddtools) ## paquetes rdd y rddtools nos permite hacer un rd y es compatible con stargazer
-datosRDD<-rdd_data(y= parvio_ip4_pc, x= vote_share, data=base2, cutpoint = 0)
+p_load(rdd, AER, rddtools, stargazer) ## paquetes rdd y rddtools nos permite hacer un rd y es compatible con stargazer
 
-      #estimamos la regresion y graficamos
-modeloRDD <- rdd_reg_lm(datosRDD)
+    #creamos un objeto rd antes de correr la regresion
+
+#vamos a crear una nueva variable donde se aplica la intereaccion
+
+interaccion <- data.frame(base2$vote_share*base2$left_winner) 
+base2<- as.data.frame(base2)
+objetoRDD <- rdd_data(y= base2$parvio_ip4_pc, x= base2$vote_share, covar = base2[,cbind(interaccion)], cutpoint = 0)
+
+
+
+    #estimamos la regresion y graficamos
+modeloRDD <- rdd_reg_lm(objetoRDD, order=1)## utilizamos rdd_reg_lm puesto que es una regresion simple no lineal
+
+
 ggplot(mapping = aes(x=vote_share, y=parvio_ip4_pc), data=base2)+ 
 
   geom_smooth(data = subset(base2, vote_share < 0), aes(vote_share, parvio_ip4_pc), method = "lm", color = "blue", se = FALSE) +
@@ -382,10 +393,35 @@ ggplot(mapping = aes(x=vote_share, y=parvio_ip4_pc), data=base2)+
        y= "indice de violencia por paramilitares")
 
 
-# regresion RDD con no linealidad
+    # regresion RDD con no linealidad (cuadratica)
 modeloRDDnl <- rdd_reg_lm(datosRDD, order=2) 
-  
-  
+
+    # regresion RDD con linealidad y intereaccion con Var.interes= left_win
+
+
+
+modeloRDDxLW <- rdd_reg_lm(objetoRDD, order=1, formula= base2$parvio_ip4_pc ~ base2$left_winner + interaccion)
+amodeloRDDxLw <- rdrobust(y=base2$parvio_ip4_pc, x= base2$vote_share, covs=cbind(interaccion, base2$left_winner))
+                         
+summary(amodeloRDDxLw)
+stargazer(modeloRDDxLW, type="text")
+
+
+
+
+
+
+
+
+
+
+
+
+
+#################################################################################
+#
+#
+#3)  
 ##grafico de dispersion con puntos y RDD
 ggplot(mapping= aes(x= vote_share,y=parvio_ip4_pc), data= base2)+ geom_point(alpha=0.5)+
   geom_smooth(method="loess", data = subset(base2, vote_share<0), se=FALSE)+
