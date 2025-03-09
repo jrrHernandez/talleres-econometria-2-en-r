@@ -318,7 +318,7 @@ render("regresionUnion.Rmd", output_format = "pdf_document")
 #Limpiamos el inventario
 rm(list=ls())
 require(pacman)
-p_load(stargazer, rio, ggplot2)
+p_load(stargazer, rio, ggplot2, estimatr, modelsummary, knitr)
 
 ####### a)############
 base2 <- import("C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/taller 2/taller2 practico/New folder/talleres-econometria-2-en-r/bases/BaseP2.dta")
@@ -366,62 +366,91 @@ ggplot(data = base2, mapping = aes(x=base2$vote_share, y = base2$left_winner)) +
 ## 1) graficar relacion existente entre vote_share y parvio_ip4_pc
 ggplot(data = base2, mapping = aes(x=base2$vote_share, y=base2$parvio_ip4_pc))+
   geom_point() + labs(x="proporcion de votos", y= "indice de violencia por paramilitares")
-#2) correr regresionRDD y=b0 + b1voteshare+e (sin no linealidad)
+#2) correr regresionRDD y=b0 + b1voteshare+e (sin no linealidad) y sin interacciones
 p_load(rdd, AER, rddtools, stargazer) ## paquetes rdd y rddtools nos permite hacer un rd y es compatible con stargazer
 
     #creamos un objeto rd antes de correr la regresion
 
-#vamos a crear una nueva variable donde se aplica la intereaccion
-
-interaccion <- data.frame(base2$vote_share*base2$left_winner) 
-base2<- as.data.frame(base2)
-objetoRDD <- rdd_data(y= base2$parvio_ip4_pc, x= base2$vote_share, covar = base2[,cbind(interaccion)], cutpoint = 0)
-
+objetoRDD <- rdd_data(y= base2$parvio_ip4_pc, x= base2$vote_share, cutpoint = 0)
 
 
     #estimamos la regresion y graficamos
-modeloRDD <- rdd_reg_lm(objetoRDD, order=1)## utilizamos rdd_reg_lm puesto que es una regresion simple no lineal
+modeloRDD <- rdd_reg_lm(objetoRDD, order=1)## utilizamos rdd_reg_lm puesto que es una regresionrd simple no lineal
 
-
-ggplot(mapping = aes(x=vote_share, y=parvio_ip4_pc), data=base2)+ 
-
-  geom_smooth(data = subset(base2, vote_share < 0), aes(vote_share, parvio_ip4_pc), method = "lm", color = "blue", se = FALSE) +
-  geom_smooth(data= subset(base2, vote_share>0), mapping = aes(x=vote_share, y=parvio_ip4_pc), method = "lm", color="red", se= FALSE) +
-  geom_vline(xintercept = 0, linetype = "dashed", color = "green", size = 1)+
-  labs(title= "Regresion Discontinua Aguda sin no linealidad",
-       x="proporcion de votos de la izquiera",
-       y= "indice de violencia por paramilitares")
 
 
     # regresion RDD con no linealidad (cuadratica)
-modeloRDDnl <- rdd_reg_lm(datosRDD, order=2) 
+modeloRDDnl <- rdd_reg_lm(objetoRDD, order=2) 
 
-    # regresion RDD con linealidad y intereaccion con Var.interes= left_win
-
-
-
-modeloRDDxLW <- rdd_reg_lm(objetoRDD, order=1, formula= base2$parvio_ip4_pc ~ base2$left_winner + interaccion)
-amodeloRDDxLw <- rdrobust(y=base2$parvio_ip4_pc, x= base2$vote_share, covs=cbind(interaccion, base2$left_winner))
-                         
-summary(amodeloRDDxLw)
-stargazer(modeloRDDxLW, type="text")
+#3) regresion RDD con linealidad y intereaccion con Var.interes= left_winner
 
 
 
+modeloRDDxLW <- lm_robust(parvio_ip4_pc~vote_share+left_winner*vote_share,
+                          data= base2)
+
+wdRp2<-"C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/taller 2/taller2 practico/New folder/talleres-econometria-2-en-r/resultados/resultadosP2"
+setwd(wdRp2)
+resuladosRDDxLW <-modelsummary(modeloRDDxLW, type="pdf")
+
+# regresion RDD cuadratica y con interaccion
+modeloRDDxLWc <-  lm_robust(parvio_ip4_pc~vote_share+vote_share_sq+left_winner*vote_share,
+                            data= base2)
+resultadosRDDxLWc <- modelsummary(modeloRDDxLWc, modeloRDDxLW)
+resultadosRDDxLWc
+
+modelsummary(list("Modelo RDD lineal" = modeloRDD, 
+                  "Modelo RDD cuadrático" = modeloRDDnl, 
+                  "Modelo RDD con interacción"=modeloRDDxLW,
+                  "Modelo RDD con interacción y cuadrático"=modeloRDDxLWc), output ="C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/taller 2/taller2 practico/New folder/talleres-econometria-2-en-r/resultados/resultadosP2/regTOTALES.docx")
+
+###############d)###############
+    #filtramos los datos con el ancho de banda 0.5
+anchoDeBanda <- 0.5
+dataConABanda <- subset(base2, vote_share>=-anchoDeBanda & vote_share<=anchoDeBanda)
 
 
+  objetoRDDh <-rdd_data(y=parvio_ip4_pc,x=vote_share, cutpoint = 0, data=dataConABanda)
+  modeloRDDh0.5 <- rdd_reg_lm(objetoRDDh,order=1)
+  modeloRDDnlh0.5 <- rdd_reg_lm(objetoRDD, order=2)
+  modeloRDDxLWh0.5 <- lm_robust(parvio_ip4_pc~vote_share+left_winner*vote_share,
+                            data= dataConABanda)
+  modeloRDDxLWch0.5 <-  lm_robust(parvio_ip4_pc~vote_share+vote_share_sq+left_winner*vote_share,
+                              data= dataConABanda)
+
+  modelsummary(list("Modelo RDD lineal" = modeloRDDh0.5, 
+                    "Modelo RDD cuadrático" = modeloRDDnlh0.5, 
+                    "Modelo RDD con interacción"=modeloRDDxLWh0.5,
+                    "Modelo RDD con interacción y cuadrático"=modeloRDDxLWch0.5), output ="C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/taller 2/taller2 practico/New folder/talleres-econometria-2-en-r/resultados/resultadosP2/regpuntoD.docx")
 
 
-
-
-
-
-
-
+  
+#########  e) #############
+  
+  anchoDeBanda <- 0.1
+  dataConABanda <- subset(base2, vote_share>=-anchoDeBanda & vote_share<=anchoDeBanda)
+  
+  
+  objetoRDDh0.1 <-rdd_data(y=parvio_ip4_pc,x=vote_share, cutpoint = 0, data=dataConABanda)
+  modeloRDDh0.1 <- rdd_reg_lm(objetoRDDh,order=1)
+  modeloRDDnlh0.1 <- rdd_reg_lm(objetoRDD, order=2)
+  modeloRDDxLWh0.1 <- lm_robust(parvio_ip4_pc~vote_share+left_winner*vote_share,
+                                data= dataConABanda)
+  modeloRDDxLWch0.1 <-  lm_robust(parvio_ip4_pc~vote_share+vote_share_sq+left_winner*vote_share,
+                                  data= dataConABanda)
+  
+  modelsummary(list("Modelo RDD lineal" = modeloRDDh0.1, 
+                    "Modelo RDD cuadrático" = modeloRDDnlh0.1, 
+                    "Modelo RDD con interacción"=modeloRDDxLWh0.1,
+                    "Modelo RDD con interacción y cuadrático"=modeloRDDxLWch0.1), output ="C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/taller 2/taller2 practico/New folder/talleres-econometria-2-en-r/resultados/resultadosP2/regpuntoE.docx")
+  
+  
+  
+  
 #################################################################################
 #
 #
-#3)  
+ 
 ##grafico de dispersion con puntos y RDD
 ggplot(mapping= aes(x= vote_share,y=parvio_ip4_pc), data= base2)+ geom_point(alpha=0.5)+
   geom_smooth(method="loess", data = subset(base2, vote_share<0), se=FALSE)+
@@ -439,6 +468,121 @@ ggplot(mapping= aes(x= vote_share,y=parvio_ip4_pc), data= base2)+
        y= "indice de violencia por paramilitares")
 
 
+###############################################################################
+#########################TERCER PUNTO########################################
+###############################################################################
+###############################################################################
+#
+# a) 
+rm(list=ls())
+require(pacman)
+p_load(rio, stargazer, ggplot2)
+direccion <- "C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/taller 2/taller2 practico/New folder/talleres-econometria-2-en-r/bases/BaseP3.dta"
+base3 <- import(direccion)
+setwd("C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/taller 2/taller2 practico/New folder/talleres-econometria-2-en-r/resultados/resultadosP3")
+
+politicalquizSTD <- scale(base3$politicalquiz)
+base3STD<- cbind(base3, politicalquizSTD)
+
+#b dado que la edad es un factor fundamental a la hora de votar, puesto que al cumplir 18 años es 
+# obligatorio, la edad nos sirve de running variable para estimar el salto en probabilidad de votar
+# a medida que aumenta la edad. 
+
+
+#c) 
+ggplot(data = base3STD, mapping= aes(x=base3STD$age, y=base3STD$vote))+ 
+  geom_smooth(data = subset(base3STD, age<18), method="loess", mapping = aes(x=age, y=vote))+
+  geom_smooth(data=subset(base3STD, age>=18), method = "loess", mapping=aes(x=age, y=vote))+
+ geom_vline(xintercept = 18, linetype = "dashed", color = "red", size = 1) +
+  labs(title = "Probabilidad de votar",
+       x = "edad",
+       y = "probabilidad de votar") 
+
+#d) 
+
+compulsoryvote <- ifelse(base3STD$age>=18,1,0)
+compulsoryvote <- as.data.frame(compulsoryvote)
+base3STDc <- cbind(base3STD, compulsoryvote)
+# por que tendria sentido utilizar esta variable como instrumento en una regresion discontinua borrosa?
+# los individuos no pueden manipular su edad, es una variable continua y ademas existe una discontinuidad entre votar y si cumple con 18 años
+
+
+#e)
+base3STDc6M <- subset(base3STDc, sample6m==1)
+
+  # En la vecindad del punto de corte hay discontinuidad en la probabilidad de votar
+      
+p_load(stargazer, rio, ggplot2, rddensity, rdd)
+ggplot(data = base3STD, mapping= aes(x=base3STD$age, y=base3STD$vote))+ 
+  geom_smooth(data = subset(base3STD, age<18), method="loess", mapping = aes(x=age, y=vote))+
+  geom_smooth(data=subset(base3STD, age>=18), method = "loess", mapping=aes(x=age, y=vote))+
+  geom_vline(xintercept = 18, linetype = "dashed", color = "red", size = 1) +
+  labs(title = "Probabilidad de votar",
+       x = "edad",
+       y = "probabilidad de votar") 
+
+
+  # Hay continuidad local para las siguientes covariables: white, female, college
+  #mother, livewithparents y work. Utilice la variable categ´ orica del nivel escolar
+  #como control para todos los casos.(realzado con ayuda de chatgpt)
+covariables <- c("white", "female", "college", "mother", "livewithparents", "work")
+
+for (var in covariables) {
+  model <- lm(base3STDc6M[[var]] ~ I(age - 18) * (age >= 18), data = base3STDc6M)
+  print(summary(model))
+}
+
+
+  # No hay manipulaci´on en la variable de focalizaci´ on
+p_load(rddensity)
+a<-rddensity(base3STDc6M$diasalt_1)
+summary(object = a)
+#resultado: el pvalor que se obtiene al realizar la hipotesis nula donde se asume que no existe manipulacion del
+#           instrumento, es de 0,1674,el cual, es mayor al nuvel de significancia 0,05.Por lo cual, no hay evidencia
+#           estadisticamente significativa que afirme que hay manipulacion del instrumento.
+
+
+rdplotdensity(a, X = base3STDc6M$diasalt_1)
+
+
+#f)
+#mco
+p_load(rdrobust, stargazer, estimatr, AER,officer,flextable, dplyr)
+mco <- lm(politicalquizSTD ~ vote+escola+votedbefore2010+female+collegemother_y,base3STDc)
+#sharp
+
+controls <- "escola + votedbefore2010 + white + female + collegemother_y"
+sharp_formula <- as.formula(paste("politicalquizSTD ~ vote + diasalt_1 + diasalt_1:vote +", controls))
+sharp_model <- lm(sharp_formula, data = base3STDc6M)
+
+#borroza
+
+fuzzy_model <- ivreg(politicalquizSTD ~ diasalt_1 + diasalt_1:vote + escola + votedbefore2010 + white + female + collegemother_y | vote, data = base3STDc6M)
+
+all_vars <- unique(c(names(coef(mco)), names(coef(sharp_model)), names(coef(fuzzy_model))))
+summary_table <- data.frame(
+  Variable = all_vars,
+  MCO = NA,
+  Sharp_RD = NA,
+  Fuzzy_RD = NA
+)
+
+# Rellenar con coeficientes de cada modelo
+summary_table$MCO[match(names(coef(mco)), all_vars)] <- coef(mco)
+summary_table$Sharp_RD[match(names(coef(sharp_model)), all_vars)] <- coef(sharp_model)
+summary_table$Fuzzy_RD[match(names(coef(fuzzy_model)), all_vars)] <- coef(fuzzy_model)
+
+print(summary_table)
+  
+ft <- flextable(summary_table) %>%
+  autofit()
+
+# Exportar a Word
+doc <- read_docx()
+doc <- body_add_flextable(doc, ft)
+print(doc, target = "resultados_regresion.docx")
+
+print("Archivo Word exportado correctamente.")
 
 
 
