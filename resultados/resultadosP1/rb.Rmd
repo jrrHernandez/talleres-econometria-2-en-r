@@ -1,0 +1,28 @@
+---
+title: "rb"
+output:
+  pdf_document: default
+  word_document: default
+date: "2025-03-10"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(pacman)
+p_load(rio,stargazer)
+base1 <- import("C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/taller 2/taller2 practico/New folder/talleres-econometria-2-en-r/bases/BaseP1.dta")
+
+modelo1 <- lm(lwage ~ educ + exper + black + married + fatheduc + motheduc, data = base1) 
+
+
+```
+```{r results="asis",echo=FALSE}
+resultadosm1 <- stargazer(... = modelo1, type="latex", espace=FALSE, header=FALSE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
