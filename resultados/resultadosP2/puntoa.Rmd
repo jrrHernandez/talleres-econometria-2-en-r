@@ -1,0 +1,27 @@
+---
+title: "puntoa"
+output: pdf_document
+date: "2025-03-10"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(pacman)
+p_load(stargazer, rio, ggplot2, estimatr, modelsummary, knitr)
+
+####### a)############
+require(pacman)
+p_load(stargazer, rio, ggplot2, estimatr, modelsummary, knitr)
+
+####### a)############
+base2 <- import("C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/taller 2/taller2 practico/New folder/talleres-econometria-2-en-r/bases/BaseP2.dta")
+```
+
+
+```{r results="asis",echo=FALSE}
+modelo1 <- lm(parvio_ip4_pc~left_winner, data = base2)
+stargazer(modelo1, type = "latex", header = FALSE, escape = FALSE)
+```
+
+\
+
