@@ -1,0 +1,40 @@
+---
+title: "punto 1 d"
+output: pdf_document
+date: "2025-03-24"
+---
+
+```{r setup, include=FALSE}
+require(pacman)   
+   p_load(dplyr, stargazer, rmarkdown, tinytex, rio) # utilizamos el paquete dplyr para manipular datos eficientemente
+  dirBases <- "C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/talleres/talleres-econometria-2-en-r/Taller 3/bases/Panel.dta"
+
+
+paneldata <- import(dirBases) 
+   
+   
+#   1) creamos las variables within   
+   dataWithin <- paneldata %>% 
+     group_by(city) %>% # agrupamos el promedio de cada variable por individuo(municipio) 
+     mutate(
+       Within_logrent= log(rent)-mean(log(rent)),
+       Within_logPop = log(pop)- mean(log(pop)),
+       Within_pctstu = pctstu - mean(pctstu),
+       Within_logAvginc = log(avginc) - mean(log(avginc)),
+       Within_y90    = y90 - mean(y90)) %>% #utilizamos mutate(libreria dplyr) para crear variables deacuerdo a varias operaciones de calculo. En
+      ungroup()      # en este caso restamos el promedio 
+
+   
+# 2) corremos los 2 modelos: 1 sin y90 y con y90
+   modelowithin1 <- lm(Within_logrent~Within_logPop+Within_logAvginc+Within_pctstu+Within_y90, data = dataWithin)
+   modelowithin2 <- lm(Within_logrent~Within_logPop+Within_logAvginc+Within_pctstu, data = dataWithin)
+
+```
+```{r results='asis', echo=FALSE}
+stargazer(modelowithin1, modelowithin2, type="latex", header=FALSE, escape=FALSE,
+          title = "Efectos Fijos manual" )
+
+
+
+```
+

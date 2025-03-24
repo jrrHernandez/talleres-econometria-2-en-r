@@ -78,6 +78,44 @@ rmarkdown::render("punto 1 a y b.Rdm")
    
    
    
+                    ##d)### 
+require(pacman)   
+   p_load(dplyr, stargazer, rmarkdown, tinytex) # utilizamos el paquete dplyr para manipular datos eficientemente
+   
+#   1) creamos las variables within   
+   dataWithin <- paneldata %>% 
+     group_by(city) %>% # agrupamos el promedio de cada variable por individuo(municipio) 
+     mutate(
+       Within_logrent= log(rent)-mean(log(rent)),
+       Within_logPop = log(pop)- mean(log(pop)),
+       Within_pctstu = pctstu - mean(pctstu),
+       Within_logAvginc = log(avginc) - mean(log(avginc)),
+       Within_y90    = y90 - mean(y90)) %>% #utilizamos mutate(libreria dplyr) para crear variables deacuerdo a varias operaciones de calculo. En
+      ungroup()      # en este caso restamos el promedio 
+
+   
+# 2) corremos los 2 modelos: 1 sin y90 y con y90
+   modelowithin1 <- lm(Within_logrent~Within_logPop+Within_logAvginc+Within_pctstu+Within_y90, data = dataWithin)
+   modelowithin2 <- lm(Within_logrent~Within_logPop+Within_logAvginc+Within_pctstu, data = dataWithin)
+   
+# 3) visualizamos y exportamos los archivos. exportamos con rmarkdown (el procedimiento en rmark down es el mismo que realizaamos aca.)
+   stargazer(modelowithin1, modelowithin2, type="latex", header=FALSE, escape=FALSE)
+rmarkdown::render("punto 1 d.Rmd")
+
+
+
+                  ##e)## 
+# dado que en r no existe el comando xtreg,vamos a utilizar la libreria plm
+require(pacman)
+p_load(stargazer, rio, plm, tinytex)
+
+EF_modelo1 <- plm(log(rent)~y90+log(pop)+log(avginc)+pctstu, data = paneldata, model = "within")
+EF_Modelo2 <- plm(log(rent)~log(pop)+log(avginc)+pctstu, data = paneldata, model="within")   
+ # exppportamos con rmarkdown
+stargazer(EF_modelo1, EF_Modelo2, type="latex", title = "Efectos fijos con plm/xtreg",
+          header = FALSE,
+          escape = FALSE)
+   
    
    
    
