@@ -1,0 +1,45 @@
+---
+title: "punto 1 c"
+output: pdf_document
+date: "2025-03-24"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(pacman)
+p_load(stargazer, tinytex, rio)
+dirBases <- "C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/talleres/talleres-econometria-2-en-r/Taller 3/bases/Panel.dta"
+
+
+paneldata <- import(dirBases)
+
+   Dlnrent<- diff(paneldata$lrent)
+
+   Dy90 <- diff(paneldata$y90)
+
+   DlogPop <- diff(log(paneldata$pop))
+   
+   DlogAvgInc <- diff(log(paneldata$avginc))
+  
+   Dpctstu <- diff(paneldata$avginc)
+
+
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r results='asis', echo=FALSE}
+
+ dataprimerasdiferencias <- as.data.frame(cbind(Dy90, Dlnrent,DlogPop,DlogAvgInc,Dpctstu))
+
+ modeloPrimerasDiferencias <- lm(Dlnrent~ Dy90+DlogPop+DlogAvgInc+Dpctstu, data = dataprimerasdiferencias)
+ 
+ stargazer(modeloPrimerasDiferencias, type="latex", header=FALSE, escape=FALSE)
+ 
+
+```
+

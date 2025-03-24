@@ -1,0 +1,33 @@
+---
+title: "Punto 1 a y b"
+output: pdf_document
+date: "2025-03-23"
+---
+
+```{r setup, include=FALSE}
+require(pacman)
+p_load(rio, stargazer, tinytex)
+
+dirBases <- "C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/talleres/talleres-econometria-2-en-r/Taller 3/bases/Panel.dta"
+
+
+paneldata <- import(dirBases)
+
+                      #a)#
+
+modeloPOOLEDOLS <- lm(log(rent)~y90+log(pop)+log(avginc)+ pctstu , data= paneldata)
+modeloPOOLEDOLS2 <- lm(log(rent)~+log(pop)+log(avginc)+ pctstu , data= paneldata)
+```
+
+```{r results='asis', echo=FALSE}
+stargazer(modeloPOOLEDOLS,modeloPOOLEDOLS2, type="latex",header= FALSE, escape=FALSE)
+
+```
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
