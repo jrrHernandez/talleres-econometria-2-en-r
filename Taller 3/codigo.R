@@ -156,7 +156,7 @@ EfectosFijosTwoWay <- plm(log(rent)~log(pop)+log(avginc)+pctstu,
    # nota: rmarkdown permite usar latex con la libreria tinytex, por lo cual la demostracion cumple con Latex.
    
    
-<<<<<<< HEAD
+
   #####################PUNTO 1 #################################################  
    rm(list = ls())
 
@@ -183,6 +183,4 @@ modeloDD3 <- lm(log_duration~highearn + after_1980 + highearn*after_1980 +
 
 
 stargazer(modeloDD2, modeloDD3, type="latex")
-=======
-   
->>>>>>> 071291ec2e49c560564eab42b7b85f86785bbdb6
+
