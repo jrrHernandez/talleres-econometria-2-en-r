@@ -16,7 +16,7 @@ dirBases <- "C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octa
 paneldata <- import(dirBases)
 
 
-EF_modelo1 <- plm(log(rent)~y90+log(pop)+log(avginc)+pctstu, data = paneldata, model = "within")
+EF_modelo1 <- plm(log(rent)~log(pop)+log(avginc)+pctstu+y90, data = paneldata, model = "within")
 EF_Modelo2 <- plm(log(rent)~log(pop)+log(avginc)+pctstu, data = paneldata, model="within")
 ```
 

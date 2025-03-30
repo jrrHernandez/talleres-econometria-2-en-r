@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.3.2)  25 MAR 2025 19:21
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.3.2)  25 MAR 2025 19:24
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**./punto-1-c.tex
-(punto-1-c.tex
+**./punto-1-f.tex
+(punto-1-f.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-04>
 (C:\Users\richa\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
@@ -382,12 +382,12 @@ tex.def
 File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count291
 \l__pdf_internal_box=\box54
-) (punto-1-c.aux
+) (punto-1-f.aux
 
 LaTeX Warning: Label `' multiply defined.
 
 )
-\openout1 = `punto-1-c.aux'.
+\openout1 = `punto-1-f.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 72.
 LaTeX Font Info:    ... okay on input line 72.
@@ -540,7 +540,7 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 a/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ec.enc}{C:/Users/richa/Ap
 pData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathsy.enc}{C:/Users/richa/Ap
 pData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-rm.enc}{C:/Users/richa/AppDat
-a/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc}] (punto-1-c.aux)
+a/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc}] (punto-1-f.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-04>
@@ -552,7 +552,7 @@ LaTeX Warning: There were multiply-defined labels.
 Here is how much of TeX's memory you used:
  13251 strings out of 474486
  210203 string characters out of 5743756
- 1935542 words of memory out of 5000000
+ 1938542 words of memory out of 5000000
  35296 multiletter control sequences out of 15000+600000
  598140 words of font info for 92 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -563,10 +563,11 @@ b><C:/Users/richa/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr10.pfb
 <C:/Users/richa/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr17.pfb><
 C:/Users/richa/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr7.pfb><C:
 /Users/richa/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri10.pfb><C:
+/Users/richa/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy10.pfb><C:
 /Users/richa/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy7.pfb>
-Output written on punto-1-c.pdf (1 page, 120554 bytes).
+Output written on punto-1-f.pdf (1 page, 124334 bytes).
 PDF statistics:
- 52 PDF objects out of 1000 (max. 8388607)
+ 57 PDF objects out of 1000 (max. 8388607)
  4 named destinations out of 1000 (max. 500000)
  20481 words of extra memory for PDF output out of 20736 (max. 10000000)
 

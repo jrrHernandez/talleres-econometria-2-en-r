@@ -1,9 +1,12 @@
 ---
-title: "punto 1 c"
+title: "punto 1 f"
 output: pdf_document
-date: "2025-03-26"
+date: "2025-03-25"
 ---
+
+
 ```{r setup, include=FALSE}
+
 require(pacman)
 p_load(stargazer, dplyr, plm, rio)  #usamos libreria plm, la cual nos permite realizar las 2 regresiones
 dirBases <- "C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/talleres/talleres-econometria-2-en-r/Taller 3/bases/Panel.dta"
@@ -12,19 +15,33 @@ dirBases <- "C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octa
 paneldata <- import(dirBases)
 
 
+EfectosFijosindividual <- plm(log(rent)~log(pop)+log(avginc)+pctstu+y90,
+                              data=paneldata, 
+                              model = "within",
+                              effect="individual")
 
-EfectosFijosindividual <- plm(log(rent)~ y90+log(pop)+log(avginc)+pctstu, data= paneldata, model = "fd")
+EfectosFijosTwoWay <- plm(log(rent)~log(pop)+log(avginc)+pctstu, 
+                          data=paneldata,
+                          model="within",
+                          effect = "twoways")
 
 
 ```
 
 ```{r results='asis', echo=FALSE}
 
-stargazer(EfectosFijosindividual,
+stargazer(EfectosFijosindividual, EfectosFijosTwoWay,
           type="latex", 
           title = "Regresión con efectos fijos individual y TwoWay Fixed effects",
           header=FALSE,
-          escape=TRUE
+          escape=FALSE
           )
 
 ```
+
+
+
+
+
+
+

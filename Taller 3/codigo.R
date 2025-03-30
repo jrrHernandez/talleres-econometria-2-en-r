@@ -51,25 +51,8 @@ rmarkdown::render("punto 1 a y b.Rdm")
                           
                       ##c)##
 # instalamos el paquete plm para realizar estimacion por medio de primeras diferencias
-#     1) realizamos las primeras diferencias para cada variable.
-
-   Dlnrent<- diff(paneldata$lrent)
-
-   Dy90 <- diff(paneldata$y90)
-
-   DlogPop <- diff(log(paneldata$pop))
-   
-   DlogAvgInc <- diff(log(paneldata$avginc))
-  
-   Dpctstu <- diff(paneldata$avginc)
-
-
-#     2) juntamos todas las variables que son diferencias y estimamos la regresion
-   
-   dataprimerasdiferencias <- as.data.frame(cbind(Dy90, Dlnrent,DlogPop,DlogAvgInc,Dpctstu))
-
-   modeloPrimerasDiferencias <- lm(Dlnrent~ Dy90+DlogPop+DlogAvgInc+Dpctstu, data = dataprimerasdiferencias)
-   
+#    
+modeloPrimerasDiferencias <- plm(log(rent)~ y90+log(pop)+log(avginc)+pctstu, data= paneldata, model = "fd")
    
                #Supuesto necesario: cov(Dlnrent,Derror)=cov(DlogPop,Derror)=cov(DlogAvgInc, Derror)= 0
    
@@ -109,16 +92,93 @@ rmarkdown::render("punto 1 d.Rmd")
 require(pacman)
 p_load(stargazer, rio, plm, tinytex)
 
-EF_modelo1 <- plm(log(rent)~y90+log(pop)+log(avginc)+pctstu, data = paneldata, model = "within")
+EF_modelo1 <- plm(log(rent)~log(pop)+log(avginc)+pctstu+y90, data = paneldata, model = "within")
+
 EF_Modelo2 <- plm(log(rent)~log(pop)+log(avginc)+pctstu, data = paneldata, model="within")   
  # exppportamos con rmarkdown
 stargazer(EF_modelo1, EF_Modelo2, type="latex", title = "Efectos fijos con plm/xtreg",
           header = FALSE,
           escape = FALSE)
+
+
+    #los supuestos necesarios para que sea consistente el estimador es que no
+#  exista relacion entre el efecto within de las variables explicativas con 
+#   el efecto within del error.  Cov(withinlog(pop), within_error)=cov(withinlog(avginc),within_error) =cov(whihinpctstu,within_error)= cov(withiny90, withinerror)=0
+
+
+
+                ## f)##
+require(pacman)
+p_load(stargazer, dplyr, plm, rio)  #usamos libreria plm, la cual nos permite realizar las 2 regresiones
+
+
+EfectosFijosindividual <- plm(log(rent)~log(pop)+log(avginc)+pctstu+y90,
+                              data=paneldata, 
+                              model = "within",
+                              effect="individual")
+
+EfectosFijosTwoWay <- plm(log(rent)~log(pop)+log(avginc)+pctstu, 
+                          data=paneldata,
+                          model="within",
+                          effect = "twoways")
+                ##exportamos con rmarkdown
+
+   rmarkdown::render("punto 1 f.Rmd", output_format = "pdf")
+   
+   #explicacion: si solo usamos efectos fijos por ciudad se mantiene en control las diferencias estructurales 
+   # entre ciudades, pero no varia en el tiempo. Los dos modelos son iguales porque ambos restan el promedio por ciudad
+ # En la regresion twoway-fixed effects no se estima y90 por ser una variable que es fija en el tiempo.
    
    
+                  ##g##
+   
+  # Tenemos 4 modelos, por lo cual, vamos a indicar el estimador de el logaritmo del la poblacion respecto al logaritmo de la renta
+  # para el modelo de ols: el estimador es 0.041. Sin embargo, no es estadisticamente siginifativo puesto que dos veces 0.023(error estandar) es mayor al estimador.  
+  #                        por lo tanto, no se puede realizar inferencia.
    
    
+  # Para el modelo de primeras diferencias: Al igual que en ols, el estimador de primeras diferencias para el logaritmo de la poblacion 
+  #                                         no es estadisticamente significativo. Esto puede ser debido a que hay menor muestra, luego 
+  #                                        la variabilidad de los datos aumenta.
+  #
+   
+  # Para el modelo within manual: A diferencia de FD, aplicar effectos within no reduce la informacion. 
+  #                               De acuerdo con el primer modelo, no podemos afirmar nada sobre el estimador de within_logPop.
+  #                               Sin embargo, el segundo modelo within, donde no incluimos la variable y90, estima que un aumento del 1% de la poblacion
+  #                               aumenta en 0.297% el precio de alquiler, manteniendo las otras variables constantes. Este estimador es significativo al 5% de significancia
+   
+  # para el modelo within xtreg: ningun estimador dentro de la variable logpop es significativo.                              
+  #
+   
+  
+   
+   ##  BONO. Realizado en rmarkdown. No obstante se pone el codigo del proceso acontinuacion
+   # nota: rmarkdown permite usar latex con la libreria tinytex, por lo cual la demostracion cumple con Latex.
    
    
-   
+  #####################PUNTO 1 #################################################  
+   rm(list = ls())
+
+   dirBaseDD <- "C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/talleres/talleres-econometria-2-en-r/Taller 3/bases/Base_Taller_DD.dta"   
+  require(pacman)
+  p_load(rio, stargazer, did) 
+baseDD <- import(dirBaseDD)  
+
+
+                 ##b##   
+modeloDD <- lm(duration ~ highearn + after_1980+ highearn*after_1980, data=baseDD)
+stargazer(modeloDD, type="text")
+
+
+                ##c)###
+#supuesto de tendencias paralelas
+#necesitamos el contrafactual
+
+
+        ###d)##
+modeloDD2 <- lm(log_duration~highearn + after_1980 + highearn*after_1980, data=baseDD)
+modeloDD3 <- lm(log_duration~highearn + after_1980 + highearn*after_1980 +
+                  male + married + hosp + age + lprewage, data= baseDD)
+
+
+stargazer(modeloDD2, modeloDD3, type="latex")

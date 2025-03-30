@@ -1,0 +1,25 @@
+---
+title: "punto 2 d"
+output: pdf_document
+date: "2025-03-27"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+   dirBaseDD <- "C:/Users/richa/OneDrive - Universidad de los Andes/Universidad/octavo/Econometria 2/talleres/talleres-econometria-2-en-r/Taller 3/bases/Base_Taller_DD.dta"   
+  require(pacman)
+  p_load(rio, stargazer, did) 
+baseDD <- import(dirBaseDD)  
+```
+
+```{r results="asis", echo=FALSE}
+modeloDD2 <- lm(log_duration~highearn + after_1980 + highearn*after_1980, data=baseDD)
+modeloDD3 <- lm(log_duration~highearn + after_1980 + highearn*after_1980 +
+                  male + married + hosp + age + lprewage, data= baseDD)
+
+
+stargazer(modeloDD2, modeloDD3, type="latex")
+```
+

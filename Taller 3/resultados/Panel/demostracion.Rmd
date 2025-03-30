@@ -1,0 +1,90 @@
+---
+title: "Demostración de Estimadores en Datos Panel"
+author: "Ricardo Hernandez, Andres Serrano y Laura Rodriguez
+creditos a:  J.MarceloOchoa (2009)"
+date: "`r Sys.Date()`"
+output: pdf_document
+
+---
+title: "Demostración: Equivalencia entre Efectos Fijos y Primeras Diferencias para T=2"
+output: pdf_document
+---
+
+# Demostración
+
+Considere el modelo de datos panel para $T=2$:
+\[
+y_{it} = x_{it}\beta + \alpha_i + \epsilon_{it}, \quad t=1,2
+\]
+donde $\alpha_i$ es el efecto individual no observable.
+
+---
+
+## 1. **Estimador de Primeras Diferencias (DE)**
+
+Se calcula la diferencia entre $t=2$ y $t=1$ para eliminar $\alpha_i$:
+\[
+\Delta y_i = y_{i2} - y_{i1} = (x_{i2} - x_{i1})\beta + (\epsilon_{i2} - \epsilon_{i1})
+\]
+\[
+\Delta y_i = \Delta x_i \beta + \Delta \epsilon_i
+\]
+
+El estimador DE se obtiene mediante MCO:
+\[
+\hat{\beta}_{DE} = \left[\sum_{i=1}^N \Delta x_i^\prime \Delta x_i \right]^{-1} \sum_{i=1}^N \Delta x_i^\prime \Delta y_i
+\]
+
+---
+
+## 2. **Estimador de Efectos Fijos (FE)**
+
+Se elimina $\alpha_i$ restando las medias temporales:
+\[
+y_{it} - \bar{y}_i = (x_{it} - \bar{x}_i)\beta + (\epsilon_{it} - \bar{\epsilon}_i),
+\]
+donde $\bar{y}_i = \frac{y_{i1} + y_{i2}}{2}$, $\bar{x}_i = \frac{x_{i1} + x_{i2}}{2}$, y $\bar{\epsilon}_i = \frac{\epsilon_{i1} + \epsilon_{i2}}{2}$.
+
+El estimador FE es:
+\[
+\hat{\beta}_{FE} = \left[\sum_{i=1}^N \sum_{t=1}^2 (x_{it} - \bar{x}_i)^\prime (x_{it} - \bar{x}_i) \right]^{-1} \sum_{i=1}^N \sum_{t=1}^2 (x_{it} - \bar{x}_i)^\prime (y_{it} - \bar{y}_i)
+\]
+
+---
+
+## 3. **Expandimos cada componente y simplificamos**
+
+### Paso 1: Simplificar las sumatorias en FE  
+Para $T=2$, las variables centradas son:  
+\[
+x_{i1} - \bar{x}_i = \frac{x_{i1} - x_{i2}}{2}, \quad x_{i2} - \bar{x}_i = \frac{x_{i2} - x_{i1}}{2}
+\]
+
+La suma de cuadrados en FE es:
+\[
+\sum_{t=1}^2 (x_{it} - \bar{x}_i)^\prime (x_{it} - \bar{x}_i) = \frac{(\Delta x_i)^\prime (\Delta x_i)}{2}
+\]
+
+La suma cruzada es:
+\[
+\sum_{t=1}^2 (x_{it} - \bar{x}_i)^\prime (y_{it} - \bar{y}_i) = \frac{(\Delta x_i)^\prime (\Delta y_i)}{2}
+\]
+
+### Paso 2: Sustituir en $\hat{\beta}_{FE}$  
+\[
+\hat{\beta}_{FE} = \left[\sum_{i=1}^N \frac{\Delta x_i^\prime \Delta x_i}{2} \right]^{-1} \sum_{i=1}^N \frac{\Delta x_i^\prime \Delta y_i}{2}
+\]
+
+Factorizando $\frac{1}{2}$:
+\[
+\hat{\beta}_{FE} = \left[\sum_{i=1}^N \Delta x_i^\prime \Delta x_i \right]^{-1} \sum_{i=1}^N \Delta x_i^\prime \Delta y_i = \hat{\beta}_{DE}
+\]
+
+
+---
+
+# Conclusión  
+Para $T=2$, los estimadores de **efectos fijos** y **primeras diferencias** son idénticos:
+\[
+\boxed{\hat{\beta}_{FE} = \hat{\beta}_{DE}}
+\]
