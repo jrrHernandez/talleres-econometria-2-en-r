@@ -106,18 +106,38 @@ ggAcf(Q_earnings,lag.max = 10, type = "correlation")
 
  
 #9#
-ma(Q_earnings, order = 4)
-Smooth_QEarnings 
 
+Smooth_QEarnings5 <- ma(Q_earnings, order = 4)
+Smooth_QEarnings20 <- ma(Q_earnings, order = 10)
+#grafico
+autoplot(Q_earnings, series = "Data")+
+  autolayer(Smooth_QEarnings, series = "5-MA")+
+  autolayer(Smooth_QEarnings20, series = "10-MA")+
+  xlab("Año")+
+  title("Serie con Suavizamiento")+
+  ylab("Ganancias trimestrales por accion")+
+  scale_colour_manual( values = c("Data"="grey50","5-MA"="red", "10-MA"="blue"),
+                       breaks = c("Data","5-MA", "10-MA"))
+ggsave("Grafico9.png", plot=last_plot(), width = 16, height = )    
 
+#10#
+#aditiva
+Q_earnings %>%
+  decompose(type = "additive")%>%
+  autoplot()+xlab("Año")+
+  ggtitle("Descomposición Aditiva clasica para ganancias trimestrales por accion de Johnson & Johnson")
 
-
+ ggsave("AdditiveDecomposition.png", plot = last_plot(), width = 16, height = 9)
+#multiplicativa
+ Q_earnings %>%
+   decompose(type = "multiplicative")%>%
+   autoplot()+xlab("Año")+
+   ggtitle("Descomposición Multiplicativa clasica para ganancias trimestrales por accion de Johnson & Johnson")
  
  
+ ggsave("MultiplicativeDecomposition.png", plot=last_plot(), width = 16,height = 9)
  
- 
- 
- 
+   
  
  
  
